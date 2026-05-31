@@ -76,6 +76,7 @@ body {
 .login-form {
     display: grid;
     gap: 16px;
+    text-align: center; /* Adicionado para centralizar os elementos */
 }
 
 .login-form h1 {

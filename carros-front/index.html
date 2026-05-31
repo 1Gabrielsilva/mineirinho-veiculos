@@ -23,21 +23,20 @@
             </div>
 
             <form id="loginForm" class="login-form" autocomplete="off">
-                <h1>Acessar sistema</h1>
-                <p>Use um perfil de administrador ou cliente.</p>
+                <h1>Acessar sistema</h1> <!-- Centralizado -->
+                <p>Use um perfil de administrador ou cliente.</p> <!-- Centralizado -->
 
                 <label class="field" for="loginUsuario">
                     Usuario
-                    <input id="loginUsuario" type="text" placeholder="admin" autocomplete="off" required>
+                    <input id="loginUsuario" type="text" placeholder="" autocomplete="off" required>
                 </label>
 
                 <label class="field" for="loginSenha">
                     Senha
-                    <input id="loginSenha" type="password" placeholder="admin123" autocomplete="off" required>
+                    <input id="loginSenha" type="password" placeholder="" autocomplete="off" required>
                 </label>
 
                 <button class="submit-button" type="submit">Entrar</button>
-                <p class="login-hint">Admin: admin / admin123<br>Cliente: cliente / cliente123</p>
             </form>
 
             <form id="cadastroClienteForm" class="login-form hidden" autocomplete="off">
@@ -62,7 +61,7 @@
                 <button class="submit-button" type="submit">Criar conta</button>
             </form>
 
-            <p id="loginMensagem" class="status-message" aria-live="polite"></p>
+            <!-- Elemento com hint text removido -->
         </div>
     </section>
 
