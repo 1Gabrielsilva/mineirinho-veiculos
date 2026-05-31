@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mineirinho Veiculos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+    <section id="loginView" class="login-screen">
+        <div class="login-card">
+            <div class="brand-badge login-brand">
+                <span>Mineirinho</span>
+                Veiculos
+            </div>
+
+            <div class="login-tabs" aria-label="Acesso">
+                <button id="tabLogin" class="login-tab active" type="button">Entrar</button>
+                <button id="tabCadastroCliente" class="login-tab" type="button">Criar conta</button>
+            </div>
+
+            <form id="loginForm" class="login-form" autocomplete="off">
+                <h1>Acessar sistema</h1>
+                <p>Use um perfil de administrador ou cliente.</p>
+
+                <label class="field" for="loginUsuario">
+                    Usuario
+                    <input id="loginUsuario" type="text" placeholder="admin" autocomplete="off" required>
+                </label>
+
+                <label class="field" for="loginSenha">
+                    Senha
+                    <input id="loginSenha" type="password" placeholder="admin123" autocomplete="off" required>
+                </label>
+
+                <button class="submit-button" type="submit">Entrar</button>
+                <p class="login-hint">Admin: admin / admin123<br>Cliente: cliente / cliente123</p>
+            </form>
+
+            <form id="cadastroClienteForm" class="login-form hidden" autocomplete="off">
+                <h1>Criar conta cliente</h1>
+                <p>Contas criadas aqui podem apenas consultar o estoque.</p>
+
+                <label class="field" for="cadastroNome">
+                    Nome
+                    <input id="cadastroNome" type="text" placeholder="Seu nome" autocomplete="off" required>
+                </label>
+
+                <label class="field" for="cadastroUsuario">
+                    Usuario
+                    <input id="cadastroUsuario" type="text" placeholder="cliente.novo" autocomplete="off" required>
+                </label>
+
+                <label class="field" for="cadastroSenha">
+                    Senha
+                    <input id="cadastroSenha" type="password" placeholder="Minimo 4 caracteres" autocomplete="off" required>
+                </label>
+
+                <button class="submit-button" type="submit">Criar conta</button>
+            </form>
+
+            <p id="loginMensagem" class="status-message" aria-live="polite"></p>
+        </div>
+    </section>
+
+    <section id="appView" class="app-view hidden">
+        <header class="app-header">
+            <div class="brand">
+                <div class="brand-badge">
+                    <span>Mineirinho</span>
+                    Veiculos
+                </div>
+            </div>
+
+            <nav class="header-actions" aria-label="Navegacao principal">
+                <button class="nav-button admin-only active" data-view="cadastro" type="button">Cadastro</button>
+                <button class="nav-button" data-view="estoque" type="button">Estoque</button>
+                <button class="nav-button admin-only" data-view="relatorios" type="button">Relatorios</button>
+                <button id="btnAtualizar" class="refresh-button" type="button">Atualizar lista</button>
+                <button id="btnSair" class="logout-button" type="button">Sair</button>
+            </nav>
+        </header>
+
+        <div class="accent-line"></div>
+
+        <main class="page-shell">
+            <section id="cadastroView" class="app-section cadastro-layout">
+                <section class="card form-card admin-only">
+                    <header class="card-header">
+                        <div>
+                            <h1 id="formTitulo">Cadastrar veiculo</h1>
+                        </div>
+                        <button id="btnLimpar" class="clear-button" type="button">Limpar</button>
+                    </header>
+
+                    <form id="carroForm" class="form-grid" autocomplete="off">
+                        <input id="carroId" type="hidden">
+
+                        <div class="section-divider"><span>Identificacao</span></div>
+
+                        <div class="form-row">
+                            <label class="field" for="marca">
+                                Marca
+                                <input id="marca" name="marca" type="text" placeholder="Ex: Honda" autocomplete="off" required>
+                            </label>
+
+                            <label class="field" for="modelo">
+                                Modelo
+                                <input id="modelo" name="modelo" type="text" placeholder="Ex: Civic" autocomplete="off" required>
+                            </label>
+                        </div>
+
+                        <div class="form-row">
+                            <label class="field" for="ano">
+                                Ano
+                                <input id="ano" name="ano" type="text" inputmode="numeric" minlength="4" maxlength="4" pattern="[0-9]{4}" placeholder="2020" autocomplete="off" required>
+                            </label>
+
+                            <label class="field" for="quilometragem">
+                                Quilometragem
+                                <input id="quilometragem" name="quilometragem" type="text" inputmode="numeric" placeholder="45.000" autocomplete="off">
+                            </label>
+                        </div>
+
+                        <div class="section-divider"><span>Detalhes</span></div>
+
+                        <div class="form-row">
+                            <label class="field" for="categoria">
+                                Categoria
+                                <span class="select-wrap">
+                                    <select id="categoria" name="categoria">
+                                        <option value="">Selecione</option>
+                                        <option value="Hatch compacto">Hatch compacto</option>
+                                        <option value="Sedan compacto">Sedan compacto</option>
+                                        <option value="Sedan medio">Sedan medio</option>
+                                        <option value="SUV compacto">SUV compacto</option>
+                                        <option value="SUV medio">SUV medio</option>
+                                        <option value="Picape compacta">Picape compacta</option>
+                                        <option value="Picape media">Picape media</option>
+                                        <option value="Esportivo">Esportivo</option>
+                                        <option value="Premium">Premium</option>
+                                    </select>
+                                </span>
+                            </label>
+
+                            <label class="field" for="tipoCarroceria">
+                                Carroceria
+                                <span class="select-wrap">
+                                    <select id="tipoCarroceria" name="tipoCarroceria">
+                                        <option value="">Selecione</option>
+                                        <option value="Hatch">Hatch</option>
+                                        <option value="Sedan">Sedan</option>
+                                        <option value="SUV">SUV</option>
+                                        <option value="Picape">Picape</option>
+                                        <option value="Coupe">Coupe</option>
+                                        <option value="Perua">Perua</option>
+                                        <option value="Minivan">Minivan</option>
+                                        <option value="Conversivel">Conversivel</option>
+                                    </select>
+                                </span>
+                            </label>
+                        </div>
+
+                        <div class="form-row">
+                            <label class="field" for="cor">
+                                Cor
+                                <span class="select-wrap">
+                                    <select id="cor" name="cor">
+                                        <option value="">Selecione</option>
+                                        <option value="Branco">Branco</option>
+                                        <option value="Preto">Preto</option>
+                                        <option value="Prata">Prata</option>
+                                        <option value="Cinza">Cinza</option>
+                                        <option value="Grafite">Grafite</option>
+                                        <option value="Vermelho">Vermelho</option>
+                                        <option value="Azul">Azul</option>
+                                        <option value="Verde">Verde</option>
+                                        <option value="Amarelo">Amarelo</option>
+                                        <option value="Laranja">Laranja</option>
+                                        <option value="Marrom">Marrom</option>
+                                    </select>
+                                </span>
+                            </label>
+
+                            <label class="field" for="cambio">
+                                Cambio
+                                <span class="select-wrap">
+                                    <select id="cambio" name="cambio">
+                                        <option value="">Selecione</option>
+                                        <option value="Manual">Manual</option>
+                                        <option value="Automatico">Automatico</option>
+                                        <option value="CVT">CVT</option>
+                                        <option value="Automatizado">Automatizado</option>
+                                    </select>
+                                </span>
+                            </label>
+                        </div>
+
+                        <div class="section-divider"><span>Valor</span></div>
+
+                        <label class="field" for="preco">
+                            Preco de venda
+                            <span class="money-input">
+                                <span>R$</span>
+                                <input id="preco" name="preco" type="text" inputmode="decimal" placeholder="115.000,00" autocomplete="off" required>
+                            </span>
+                        </label>
+
+                        <button id="btnSalvar" class="submit-button" type="submit">
+                            <span aria-hidden="true">+</span>
+                            Cadastrar veiculo
+                        </button>
+
+                        <p id="mensagem" class="status-message" aria-live="polite"></p>
+                    </form>
+                </section>
+
+                <section class="card list-card">
+                    <header class="list-header">
+                        <h2>Veiculos cadastrados</h2>
+                        <span id="contador" class="count-badge">0 itens</span>
+                    </header>
+
+                    <div class="search-area">
+                        <label class="search-box" for="busca">
+                            <span aria-hidden="true">?</span>
+                            <input id="busca" type="search" placeholder="Filtrar por marca, modelo, cor ou categoria" autocomplete="off">
+                        </label>
+                    </div>
+
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Veiculo</th>
+                                    <th>Ano</th>
+                                    <th>Preco</th>
+                                    <th>Detalhes</th>
+                                    <th class="admin-only">Acoes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="carrosTabela"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </section>
+
+            <section id="estoqueView" class="app-section hidden">
+                <section class="card list-card full-width-card">
+                    <header class="list-header">
+                        <h2>Estoque disponivel</h2>
+                        <span id="contadorEstoque" class="count-badge">0 itens</span>
+                    </header>
+                    <div class="stock-grid" id="estoqueCards"></div>
+                </section>
+            </section>
+
+            <section id="relatoriosView" class="app-section hidden admin-only">
+                <section class="card report-card full-width-card">
+                    <header class="list-header">
+                        <h2>Relatorios</h2>
+                        <span class="count-badge">Resumo</span>
+                    </header>
+                    <div class="report-grid">
+                        <div class="report-item">
+                            <span>Total em estoque</span>
+                            <strong id="relatorioTotal">0</strong>
+                        </div>
+                        <div class="report-item">
+                            <span>Valor medio</span>
+                            <strong id="relatorioMedia">R$ 0,00</strong>
+                        </div>
+                        <div class="report-item">
+                            <span>Maior preco</span>
+                            <strong id="relatorioMaior">R$ 0,00</strong>
+                        </div>
+                        <div class="report-item">
+                            <span>Menor preco</span>
+                            <strong id="relatorioMenor">R$ 0,00</strong>
+                        </div>
+                    </div>
+                    <div class="category-report" id="relatorioCategorias"></div>
+                </section>
+            </section>
+        </main>
+    </section>
+
+    <script src="assets/js/app.js"></script>
+</body>
+</html>
