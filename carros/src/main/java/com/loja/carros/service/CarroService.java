@@ -59,11 +59,12 @@ public class CarroService {
         carro.setModelo(dto.modelo());
         carro.setAno(dto.ano());
         carro.setPreco(dto.preco());
-        carro.setCategoria(dto.categoria());
+        carro.setCidade(dto.cidade());
         carro.setTipoCarroceria(dto.tipoCarroceria());
         carro.setCor(dto.cor());
         carro.setQuilometragem(dto.quilometragem());
         carro.setCambio(dto.cambio());
+        carro.setImagemPath(dto.imagemPath());
     }
 
     private CarroResponseDTO toResponseDTO(Carro carro) {
@@ -73,11 +74,12 @@ public class CarroService {
                 carro.getModelo(),
                 carro.getAno(),
                 carro.getPreco(),
-                carro.getCategoria(),
+                carro.getCidade(),
                 carro.getTipoCarroceria(),
                 carro.getCor(),
                 carro.getQuilometragem(),
-                carro.getCambio()
+                carro.getCambio(),
+                carro.getImagemPath()
         );
     }
 }

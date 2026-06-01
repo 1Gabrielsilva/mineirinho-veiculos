@@ -8,10 +8,11 @@ public record CarroResponseDTO(
         String modelo,
         Integer ano,
         BigDecimal preco,
-        String categoria,
+        String cidade,
         String tipoCarroceria,
         String cor,
         Integer quilometragem,
-        String cambio
+        String cambio,
+        String imagemPath
 ) {
 }

@@ -23,8 +23,8 @@
             </div>
 
             <form id="loginForm" class="login-form" autocomplete="off">
-                <h1>Acessar sistema</h1> <!-- Centralizado -->
-                <p>Use um perfil de administrador ou cliente.</p> <!-- Centralizado -->
+                <h1>Acessar sistema</h1>
+                <p>Use um perfil de administrador ou cliente.</p>
 
                 <label class="field" for="loginUsuario">
                     Usuario
@@ -60,8 +60,6 @@
 
                 <button class="submit-button" type="submit">Criar conta</button>
             </form>
-
-            <!-- Elemento com hint text removido -->
         </div>
     </section>
 
@@ -127,20 +125,45 @@
                         <div class="section-divider"><span>Detalhes</span></div>
 
                         <div class="form-row">
-                            <label class="field" for="categoria">
-                                Categoria
+                            <label class="field" for="cidade">
+                                Cidade
                                 <span class="select-wrap">
-                                    <select id="categoria" name="categoria">
+                                    <select id="cidade" name="cidade">
                                         <option value="">Selecione</option>
-                                        <option value="Hatch compacto">Hatch compacto</option>
-                                        <option value="Sedan compacto">Sedan compacto</option>
-                                        <option value="Sedan medio">Sedan medio</option>
-                                        <option value="SUV compacto">SUV compacto</option>
-                                        <option value="SUV medio">SUV medio</option>
-                                        <option value="Picape compacta">Picape compacta</option>
-                                        <option value="Picape media">Picape media</option>
-                                        <option value="Esportivo">Esportivo</option>
-                                        <option value="Premium">Premium</option>
+                                        <option value="Belo Horizonte">Belo Horizonte</option>
+                                        <option value="Uberlândia">Uberlândia</option>
+                                        <option value="Contagem">Contagem</option>
+                                        <option value="Juiz de Fora">Juiz de Fora</option>
+                                        <option value="Montes Claros">Montes Claros</option>
+                                        <option value="Betim">Betim</option>
+                                        <option value="Uberaba">Uberaba</option>
+                                        <option value="Ribeirão das Neves">Ribeirão das Neves</option>
+                                        <option value="Governador Valadares">Governador Valadares</option>
+                                        <option value="Ipatinga">Ipatinga</option>
+                                        <option value="Sete Lagoas">Sete Lagoas</option>
+                                        <option value="Divinópolis">Divinópolis</option>
+                                        <option value="Santa Luzia">Santa Luzia</option>
+                                        <option value="Ibirité">Ibirité</option>
+                                        <option value="Poços de Caldas">Poços de Caldas</option>
+                                        <option value="Patos de Minas">Patos de Minas</option>
+                                        <option value="Pouso Alegre">Pouso Alegre</option>
+                                        <option value="Teófilo Otoni">Teófilo Otoni</option>
+                                        <option value="Sabará">Sabará</option>
+                                        <option value="Varginha">Varginha</option>
+                                        <option value="Conselheiro Lafaiete">Conselheiro Lafaiete</option>
+                                        <option value="Araguari">Araguari</option>
+                                        <option value="Itabira">Itabira</option>
+                                        <option value="Passos">Passos</option>
+                                        <option value="Ubá">Ubá</option>
+                                        <option value="Coronel Fabriciano">Coronel Fabriciano</option>
+                                        <option value="Muriaé">Muriaé</option>
+                                        <option value="Lavras">Lavras</option>
+                                        <option value="Nova Serrana">Nova Serrana</option>
+                                        <option value="Ituiutaba">Ituiutaba</option>
+                                        <option value="Araxá">Araxá</option>
+                                        <option value="Pará de Minas">Pará de Minas</option>
+                                        <option value="Timóteo">Timóteo</option>
+                                        <option value="Vespasiano">Vespasiano</option>
                                     </select>
                                 </span>
                             </label>
@@ -208,6 +231,22 @@
                             </span>
                         </label>
 
+                        <label class="field">
+                            Imagem do Veiculo
+                            <div id="uploadArea" class="upload-area">
+                                <input type="file" id="fileInput" accept=".jpg,.jpeg,.png" hidden>
+                                <div id="uploadContent">
+                                    <div class="upload-icon">☁️</div>
+                                    <div class="upload-text">Arraste uma imagem ou clique para selecionar</div>
+                                    <div class="upload-hint">JPG, PNG, JPEG</div>
+                                </div>
+                                <div id="previewContainer" class="preview-container hidden">
+                                    <img id="imagePreview" class="image-preview" src="" alt="Preview">
+                                    <button type="button" id="btnRemoveImage" class="btn-remove-image">X</button>
+                                </div>
+                            </div>
+                        </label>
+
                         <button id="btnSalvar" class="submit-button" type="submit">
                             <span aria-hidden="true">+</span>
                             Cadastrar veiculo
@@ -226,7 +265,7 @@
                     <div class="search-area">
                         <label class="search-box" for="busca">
                             <span aria-hidden="true">?</span>
-                            <input id="busca" type="search" placeholder="Filtrar por marca, modelo, cor ou categoria" autocomplete="off">
+                            <input id="busca" type="search" placeholder="Filtrar por marca, modelo, cor ou cidade" autocomplete="off">
                         </label>
                     </div>
 
@@ -281,7 +320,7 @@
                             <strong id="relatorioMenor">R$ 0,00</strong>
                         </div>
                     </div>
-                    <div class="category-report" id="relatorioCategorias"></div>
+                    <div class="category-report" id="relatorioCidades"></div>
                 </section>
             </section>
         </main>

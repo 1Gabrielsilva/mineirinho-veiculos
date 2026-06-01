@@ -26,9 +26,10 @@ public class Carro {
     private String modelo;
     private Integer ano;
     private BigDecimal preco;
-    private String categoria;
+    private String cidade;
     private String tipoCarroceria;
     private String cor;
     private Integer quilometragem;
     private String cambio;
+    private String imagemPath;
 }

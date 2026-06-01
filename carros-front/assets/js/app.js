@@ -1,6 +1,7 @@
 const API_BASE_URL = 'http://localhost:8080';
 const CARROS_URL = `${API_BASE_URL}/carros`;
 const AUTH_URL = `${API_BASE_URL}/auth`;
+const UPLOAD_URL = `${API_BASE_URL}/api/upload`;
 
 const loginView = document.querySelector('#loginView');
 const appView = document.querySelector('#appView');
@@ -26,13 +27,22 @@ const campoAno = document.querySelector('#ano');
 const campoQuilometragem = document.querySelector('#quilometragem');
 const campoPreco = document.querySelector('#preco');
 
+const uploadArea = document.querySelector('#uploadArea');
+const fileInput = document.querySelector('#fileInput');
+const uploadContent = document.querySelector('#uploadContent');
+const previewContainer = document.querySelector('#previewContainer');
+const imagePreview = document.querySelector('#imagePreview');
+const btnRemoveImage = document.querySelector('#btnRemoveImage');
+
 const relatorioTotal = document.querySelector('#relatorioTotal');
 const relatorioMedia = document.querySelector('#relatorioMedia');
 const relatorioMaior = document.querySelector('#relatorioMaior');
 const relatorioMenor = document.querySelector('#relatorioMenor');
-const relatorioCategorias = document.querySelector('#relatorioCategorias');
+const relatorioCidades = document.querySelector('#relatorioCidades');
 
 let carros = [];
+let selectedFile = null;
+let currentImagePath = null;
 let usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
 
 function manterApenasDigitos(valor) {
@@ -41,19 +51,12 @@ function manterApenasDigitos(valor) {
 
 function formatarInteiroBrasileiro(valor) {
     const digitos = manterApenasDigitos(valor);
-
-    if (!digitos) {
-        return '';
-    }
-
+    if (!digitos) return '';
     return Number(digitos).toLocaleString('pt-BR');
 }
 
 function converterMoedaParaNumero(valor) {
-    if (!valor) {
-        return 0;
-    }
-
+    if (!valor) return 0;
     return Number(valor.replace(/\./g, '').replace(',', '.'));
 }
 
@@ -62,10 +65,7 @@ function converterInteiroFormatadoParaNumero(valor) {
 }
 
 function formatarValorParaInput(valor) {
-    if (valor === null || valor === undefined || valor === '') {
-        return '';
-    }
-
+    if (valor === null || valor === undefined || valor === '') return '';
     return Number(valor).toLocaleString('pt-BR', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
@@ -89,7 +89,7 @@ function usuarioEhAdmin() {
 
 function headersAutenticados() {
     return {
-        'Content-Type': 'application/json',
+        'Accept': 'application/json; charset=UTF-8',
         Authorization: `Bearer ${tokenAtual()}`
     };
 }
@@ -116,8 +116,10 @@ async function fetchAutenticado(url, options = {}) {
 }
 
 function mostrarLoginMensagem(texto, tipo = '') {
-    loginMensagem.textContent = texto;
-    loginMensagem.className = `status-message ${tipo}`;
+    if (loginMensagem) {
+        loginMensagem.textContent = texto;
+        loginMensagem.className = `status-message ${tipo}`;
+    }
 }
 
 function mostrarMensagem(texto, tipo = '') {
@@ -197,13 +199,8 @@ function trocarView(viewName) {
         button.classList.toggle('active', button.dataset.view === viewName);
     });
 
-    if (viewName === 'relatorios') {
-        renderizarRelatorios();
-    }
-
-    if (viewName === 'estoque') {
-        renderizarEstoque();
-    }
+    if (viewName === 'relatorios') renderizarRelatorios();
+    if (viewName === 'estoque') renderizarEstoque();
 }
 
 async function iniciarAplicacao() {
@@ -218,17 +215,90 @@ async function iniciarAplicacao() {
     await carregarCarros();
 }
 
-function montarPayload() {
+function handleFileSelect(file) {
+    if (!file || !file.type.startsWith('image/')) return;
+    
+    selectedFile = file;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        imagePreview.src = e.target.result;
+        uploadContent.classList.add('hidden');
+        previewContainer.classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+}
+
+function removeSelectedImage() {
+    selectedFile = null;
+    currentImagePath = null;
+    imagePreview.src = '';
+    uploadContent.classList.remove('hidden');
+    previewContainer.classList.add('hidden');
+    fileInput.value = '';
+}
+
+uploadArea.addEventListener('click', () => fileInput.click());
+
+uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('drag-over');
+});
+
+uploadArea.addEventListener('dragleave', () => {
+    uploadArea.classList.remove('drag-over');
+});
+
+uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('drag-over');
+    if (e.dataTransfer.files.length) {
+        handleFileSelect(e.dataTransfer.files[0]);
+    }
+});
+
+fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length) {
+        handleFileSelect(e.target.files[0]);
+    }
+});
+
+btnRemoveImage.addEventListener('click', (e) => {
+    e.stopPropagation();
+    removeSelectedImage();
+});
+
+async function uploadFile() {
+    if (!selectedFile) return currentImagePath;
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    const response = await fetch(UPLOAD_URL, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${tokenAtual()}`
+        },
+        body: formData
+    });
+
+    if (!response.ok) throw new Error('Erro ao fazer upload da imagem');
+
+    const data = await response.json();
+    return data.path;
+}
+
+function montarPayload(imagePath) {
     return {
         marca: document.querySelector('#marca').value.trim(),
         modelo: document.querySelector('#modelo').value.trim(),
         ano: Number(document.querySelector('#ano').value),
         preco: converterMoedaParaNumero(document.querySelector('#preco').value),
-        categoria: document.querySelector('#categoria').value,
+        cidade: document.querySelector('#cidade').value,
         tipoCarroceria: document.querySelector('#tipoCarroceria').value,
         cor: document.querySelector('#cor').value,
         quilometragem: converterInteiroFormatadoParaNumero(document.querySelector('#quilometragem').value),
-        cambio: document.querySelector('#cambio').value
+        cambio: document.querySelector('#cambio').value,
+        imagemPath: imagePath
     };
 }
 
@@ -238,23 +308,31 @@ function limparFormulario() {
     formTitulo.textContent = 'Cadastrar veiculo';
     btnSalvar.innerHTML = '<span aria-hidden="true">+</span>Cadastrar veiculo';
     mostrarMensagem('');
+    removeSelectedImage();
 }
 
 function preencherFormulario(carro) {
-    if (!usuarioEhAdmin()) {
-        return;
-    }
+    if (!usuarioEhAdmin()) return;
 
     document.querySelector('#carroId').value = carro.id;
     document.querySelector('#marca').value = carro.marca || '';
     document.querySelector('#modelo').value = carro.modelo || '';
     document.querySelector('#ano').value = carro.ano || '';
     document.querySelector('#preco').value = formatarValorParaInput(carro.preco);
-    document.querySelector('#categoria').value = carro.categoria || '';
+    document.querySelector('#cidade').value = carro.cidade || '';
     document.querySelector('#tipoCarroceria').value = carro.tipoCarroceria || '';
     document.querySelector('#cor').value = carro.cor || '';
     document.querySelector('#quilometragem').value = formatarInteiroBrasileiro(String(carro.quilometragem || ''));
     document.querySelector('#cambio').value = carro.cambio || '';
+    
+    currentImagePath = carro.imagemPath;
+    if (currentImagePath) {
+        imagePreview.src = `${API_BASE_URL}/${currentImagePath}`;
+        uploadContent.classList.add('hidden');
+        previewContainer.classList.remove('hidden');
+    } else {
+        removeSelectedImage();
+    }
 
     formTitulo.textContent = `Editando #${carro.id}`;
     btnSalvar.innerHTML = '<span aria-hidden="true">+</span>Salvar alteracoes';
@@ -264,7 +342,6 @@ function preencherFormulario(carro) {
 
 function formatarCampoPreco() {
     const valorNumerico = converterMoedaParaNumero(campoPreco.value);
-
     if (!Number.isNaN(valorNumerico) && campoPreco.value.trim() !== '') {
         campoPreco.value = formatarValorParaInput(valorNumerico);
     }
@@ -272,12 +349,10 @@ function formatarCampoPreco() {
 
 function formatarCampoPrecoEnquantoDigita(event) {
     const digitos = manterApenasDigitos(event.target.value);
-
     if (!digitos) {
         event.target.value = '';
         return;
     }
-
     event.target.value = Number(digitos).toLocaleString('pt-BR');
 }
 
@@ -291,7 +366,6 @@ function validarAnoAntesDeSalvar() {
         campoAno.focus();
         return false;
     }
-
     return true;
 }
 
@@ -301,21 +375,17 @@ function formatarCampoQuilometragem() {
 
 function filtrarCarros() {
     const termo = busca.value.trim().toLowerCase();
-
-    if (!termo) {
-        return carros;
-    }
+    if (!termo) return carros;
 
     return carros.filter((carro) => {
         const texto = [
             carro.marca,
             carro.modelo,
             carro.cor,
-            carro.categoria,
+            carro.cidade,
             carro.tipoCarroceria,
             carro.cambio
         ].join(' ').toLowerCase();
-
         return texto.includes(termo);
     });
 }
@@ -325,13 +395,7 @@ function renderizarTabela() {
     contador.textContent = `${carrosFiltrados.length} ${carrosFiltrados.length === 1 ? 'item' : 'itens'}`;
 
     if (carrosFiltrados.length === 0) {
-        tabela.innerHTML = `
-            <tr>
-                <td colspan="${usuarioEhAdmin() ? '5' : '4'}">
-                    <div class="empty-state">Nenhum veiculo encontrado.</div>
-                </td>
-            </tr>
-        `;
+        tabela.innerHTML = `<tr><td colspan="${usuarioEhAdmin() ? '5' : '4'}"><div class="empty-state">Nenhum veiculo encontrado.</div></td></tr>`;
         return;
     }
 
@@ -339,7 +403,7 @@ function renderizarTabela() {
         <tr>
             <td>
                 <p class="car-name">${carro.marca || '-'} ${carro.modelo || ''}</p>
-                <span class="car-sub">#${carro.id} - ${carro.categoria || 'Sem categoria'}</span>
+                <span class="car-sub">#${carro.id} - ${carro.cidade || 'Sem cidade'}</span>
             </td>
             <td>${carro.ano || '-'}</td>
             <td><span class="price">${formatarMoeda(carro.preco)}</span></td>
@@ -373,17 +437,25 @@ function renderizarEstoque() {
 
     estoqueCards.innerHTML = carros.map((carro) => `
         <article class="stock-card">
-            <div>
-                <p class="car-name">${carro.marca || '-'} ${carro.modelo || ''}</p>
-                <span class="car-sub">${carro.ano || '-'} - ${carro.categoria || 'Sem categoria'}</span>
+            <div class="car-image-container">
+                ${carro.imagemPath 
+                    ? `<img class="car-image" src="${API_BASE_URL}/${carro.imagemPath}" alt="${carro.marca} ${carro.modelo}" onerror="this.parentElement.innerHTML = '<div class=\'car-placeholder\'>❌<br><span>Erro ao carregar</span></div>'">`
+                    : '<div class="car-placeholder">❌<br><span>Imagem não disponível</span></div>'
+                }
             </div>
-            <strong class="price">${formatarMoeda(carro.preco)}</strong>
-            <div>
-                <span class="tag">${carro.tipoCarroceria || '-'}</span>
-                <span class="tag">${carro.cor || '-'}</span>
-                <span class="tag">${carro.cambio || '-'}</span>
+            <div class="stock-card-content">
+                <div>
+                    <p class="car-name">${carro.marca || '-'} ${carro.modelo || ''}</p>
+                    <span class="car-sub">${carro.ano || '-'} - ${carro.cidade || 'Sem cidade'}</span>
+                </div>
+                <strong class="price">${formatarMoeda(carro.preco)}</strong>
+                <div>
+                    <span class="tag">${carro.tipoCarroceria || '-'}</span>
+                    <span class="tag">${carro.cor || '-'}</span>
+                    <span class="tag">${carro.cambio || '-'}</span>
+                </div>
+                <div class="km">${Number(carro.quilometragem || 0).toLocaleString('pt-BR')} km</div>
             </div>
-            <div class="km">${Number(carro.quilometragem || 0).toLocaleString('pt-BR')} km</div>
         </article>
     `).join('');
 }
@@ -400,16 +472,16 @@ function renderizarRelatorios() {
     relatorioMaior.textContent = formatarMoeda(maior);
     relatorioMenor.textContent = formatarMoeda(menor);
 
-    const categorias = carros.reduce((resultado, carro) => {
-        const categoria = carro.categoria || 'Sem categoria';
-        resultado[categoria] = (resultado[categoria] || 0) + 1;
+    const cidades = carros.reduce((resultado, carro) => {
+        const cidade = carro.cidade || 'Sem cidade';
+        resultado[cidade] = (resultado[cidade] || 0) + 1;
         return resultado;
     }, {});
 
-    relatorioCategorias.innerHTML = Object.entries(categorias)
-        .map(([categoria, quantidade]) => `
+    relatorioCidades.innerHTML = Object.entries(cidades)
+        .map(([cidade, quantidade]) => `
             <div class="category-row">
-                <span>${categoria}</span>
+                <span>${cidade}</span>
                 <strong>${quantidade}</strong>
             </div>
         `)
@@ -426,11 +498,7 @@ async function carregarCarros() {
     try {
         mostrarMensagem('Carregando veiculos...');
         const response = await fetchAutenticado(CARROS_URL);
-
-        if (!response.ok) {
-            throw new Error('Erro ao buscar carros.');
-        }
-
+        if (!response.ok) throw new Error('Erro ao buscar carros.');
         carros = await response.json();
         renderizarTudo();
         mostrarMensagem('Lista atualizada.');
@@ -441,15 +509,11 @@ async function carregarCarros() {
 
 async function salvarCarro(event) {
     event.preventDefault();
-
     if (!usuarioEhAdmin()) {
         mostrarMensagem('Apenas administradores podem cadastrar veiculos.', 'error');
         return;
     }
-
-    if (!validarAnoAntesDeSalvar()) {
-        return;
-    }
+    if (!validarAnoAntesDeSalvar()) return;
 
     const id = document.querySelector('#carroId').value;
     const editando = Boolean(id);
@@ -457,14 +521,15 @@ async function salvarCarro(event) {
     const method = editando ? 'PUT' : 'POST';
 
     try {
+        mostrarMensagem('Salvando veiculo...');
+        const path = await uploadFile();
         const response = await fetchAutenticado(url, {
             method,
-            body: JSON.stringify(montarPayload())
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(montarPayload(path))
         });
 
-        if (!response.ok) {
-            throw new Error('Erro ao salvar carro.');
-        }
+        if (!response.ok) throw new Error('Erro ao salvar carro.');
 
         limparFormulario();
         await carregarCarros();
@@ -476,10 +541,7 @@ async function salvarCarro(event) {
 
 function editarCarro(id) {
     const carro = carros.find((item) => item.id === id);
-
-    if (carro) {
-        preencherFormulario(carro);
-    }
+    if (carro) preencherFormulario(carro);
 }
 
 async function removerCarro(id) {
@@ -487,22 +549,11 @@ async function removerCarro(id) {
         mostrarMensagem('Apenas administradores podem excluir veiculos.', 'error');
         return;
     }
-
-    const confirmou = window.confirm(`Deseja excluir o veiculo #${id}?`);
-
-    if (!confirmou) {
-        return;
-    }
+    if (!window.confirm(`Deseja excluir o veiculo #${id}?`)) return;
 
     try {
-        const response = await fetchAutenticado(`${CARROS_URL}/${id}`, {
-            method: 'DELETE'
-        });
-
-        if (!response.ok) {
-            throw new Error('Erro ao excluir carro.');
-        }
-
+        const response = await fetchAutenticado(`${CARROS_URL}/${id}`, { method: 'DELETE' });
+        if (!response.ok) throw new Error('Erro ao excluir carro.');
         await carregarCarros();
         mostrarMensagem('Veiculo excluido com sucesso.');
     } catch (error) {
@@ -512,12 +563,8 @@ async function removerCarro(id) {
 
 loginForm.addEventListener('submit', async (event) => {
     event.preventDefault();
-
     try {
-        await autenticar(
-            document.querySelector('#loginUsuario').value.trim(),
-            document.querySelector('#loginSenha').value
-        );
+        await autenticar(document.querySelector('#loginUsuario').value.trim(), document.querySelector('#loginSenha').value);
     } catch (error) {
         mostrarLoginMensagem(error.message, 'error');
     }
@@ -525,13 +572,8 @@ loginForm.addEventListener('submit', async (event) => {
 
 cadastroClienteForm.addEventListener('submit', async (event) => {
     event.preventDefault();
-
     try {
-        await cadastrarCliente(
-            document.querySelector('#cadastroNome').value.trim(),
-            document.querySelector('#cadastroUsuario').value.trim(),
-            document.querySelector('#cadastroSenha').value
-        );
+        await cadastrarCliente(document.querySelector('#cadastroNome').value.trim(), document.querySelector('#cadastroUsuario').value.trim(), document.querySelector('#cadastroSenha').value);
     } catch (error) {
         mostrarLoginMensagem(error.message, 'error');
     }
